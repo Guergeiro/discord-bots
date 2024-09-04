@@ -2,6 +2,7 @@ package birthday
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -20,10 +21,12 @@ func AllHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		),
 	)
 	response := controller.Handle(context.Background())
+	response = slices.Insert(response, 0, "These are all the birthdays:")
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: strings.Join(response, "\n"),
+			Flags: discordgo.MessageFlagsEphemeral,
 		},
 	})
 }

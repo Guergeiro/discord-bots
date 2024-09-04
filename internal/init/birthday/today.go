@@ -2,6 +2,7 @@ package birthday
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -20,10 +21,13 @@ func TodayHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		),
 	)
 	if response := controller.Handle(context.Background()); len(response) > 0 {
+
+		response = slices.Insert(response, 0, "Today's birthdays:")
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: strings.Join(response, "\n"),
+				Flags: discordgo.MessageFlagsEphemeral,
 			},
 		})
 	} else {
@@ -31,6 +35,7 @@ func TodayHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: "No birthdays for today",
+				Flags: discordgo.MessageFlagsEphemeral,
 			},
 		})
 	}
