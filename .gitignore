@@ -15,10 +15,12 @@
 !Dockerfile
 !go.sum
 !go.mod
+!package.json
 
 !README.md
 !LICENSE
 !Makefile
 
+!.changeset
 !.github
 !docker

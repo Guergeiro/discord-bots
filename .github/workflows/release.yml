@@ -1,0 +1,43 @@
+name: Release
+
+on: workflow_dispatch
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            token: ${{ secrets.PAT }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Update versions
+        run: make check-version
+
+      - name: Commit changes
+        run: |
+          git add .changeset package.json
+          git config user.email "git@brenosalles.com"
+          git config user.name "Breno Salles"
+          git commit -m "ci: release"
+          git checkout .
+          git clean -fd
+
+      - name: Tag versions
+        run: make change-tag
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.ref }}
+          github_token: ${{ secrets.PAT }}
+          tags: true
+          force: true

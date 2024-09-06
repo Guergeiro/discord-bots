@@ -1,7 +1,6 @@
 # Simple Makefile for a Go project
 
-# Build the application
-all: build
+# Build the application all: build
 
 build:
 	@echo "Building..."
@@ -22,4 +21,20 @@ clean:
 	@echo "Cleaning..."
 	@rm -rfd build
 
-.PHONY: all build run test clean
+# Changesets tasks
+change-add:
+	@pnpm dlx @changesets/cli add
+
+change-chore:
+	@pnpm dlx @changesets/cli add --empty
+
+@change-status:
+	@pnpm dlx @changesets/cli status --since=origin/master
+
+@change-version:
+	@pnpm dlx @changesets/cli version
+
+@change-tag:
+	@pnpm dlx @changesets/cli tag
+
+.PHONY: all build run test clean change-add change-empty change-status change-version change-tag
