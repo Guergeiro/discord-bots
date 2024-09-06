@@ -27,7 +27,7 @@ func TodayHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: strings.Join(response, "\n"),
-				Flags: discordgo.MessageFlagsEphemeral,
+				Flags:   discordgo.MessageFlagsEphemeral,
 			},
 		})
 	} else {
@@ -35,7 +35,7 @@ func TodayHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: "No birthdays for today",
-				Flags: discordgo.MessageFlagsEphemeral,
+				Flags:   discordgo.MessageFlagsEphemeral,
 			},
 		})
 	}

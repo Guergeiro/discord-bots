@@ -2,8 +2,10 @@ name: publish
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - "*"
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   latest:

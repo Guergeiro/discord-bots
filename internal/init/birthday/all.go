@@ -26,7 +26,7 @@ func AllHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: strings.Join(response, "\n"),
-			Flags: discordgo.MessageFlagsEphemeral,
+			Flags:   discordgo.MessageFlagsEphemeral,
 		},
 	})
 }
