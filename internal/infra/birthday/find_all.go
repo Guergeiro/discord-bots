@@ -41,4 +41,3 @@ func (r BirthdayPostgresRepository) FindAll(
 	}
 	return output, nil
 }
-
