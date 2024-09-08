@@ -17,6 +17,7 @@
 !go.mod
 !package.json
 
+!CHANGELOG.md
 !README.md
 !LICENSE
 !Makefile
