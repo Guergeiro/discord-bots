@@ -1,9 +1,6 @@
 name: release
 
-on:
-  push:
-    branches:
-      - master
+on: workflow_dispatch
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -12,9 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
         with:
-            go-version: '1.23'
+            token: ${{ secrets.PAT }}
       - uses: pnpm/action-setup@v4
         with:
           version: 9
@@ -22,11 +18,25 @@ jobs:
         with:
           node-version: 20
 
-      - name: Create Release Pull Request
-        uses: changesets/action@v1
-        with:
-          publish: make
-          version: make change-version
+      - name: Update versions
+        run: make change-version
 
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit changes
+        run: |
+          git add package.json .changeset
+          git config user.email "git@brenosalles.com"
+          git config user.name "Breno Salles"
+          git commit -m "ci: release"
+          git checkout .
+          git clean -fd
+
+      - name: Tag versions
+        run: make change-tag
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.ref }}
+          github_token: ${{ secrets.PAT }}
+          tags: true
+          force: true
