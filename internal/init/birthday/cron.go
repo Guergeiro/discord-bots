@@ -23,7 +23,7 @@ func CreateCron(session *discordgo.Session) (*Cron, error) {
 	}
 
 	c := cron.New()
-	c.AddFunc("* * * * *", func() {
+	c.AddFunc("0 9 * * *", func() {
 		TodayCron(session, CHANNEL_ID)
 	})
 	c.Start()
