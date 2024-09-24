@@ -40,5 +40,5 @@ func (c BirthdaySetController) Handle(
 	if err != nil {
 		return []string{err.Error()}
 	}
-	return []string{fmt.Sprintf("<@&%s> - %s", birthday.Id, birthday.Date)}
+	return []string{fmt.Sprintf("<@%s> - %s", birthday.Id, birthday.Date)}
 }

@@ -51,7 +51,11 @@ func TodayCron(s *discordgo.Session, channelId string) {
 		),
 	)
 	if response := controller.Handle(context.Background()); len(response) > 0 {
-		s.ChannelMessageSend(channelId, strings.Join(response, "\n"))
+		header := []string{
+			"Hey @everyone!",
+			"This is a list of today's birthdays.",
+		}
+		finalMessage := append(header, response...)
+		s.ChannelMessageSend(channelId, strings.Join(finalMessage, "\n"))
 	}
-
 }
