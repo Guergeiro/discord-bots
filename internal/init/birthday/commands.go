@@ -19,7 +19,11 @@ func (c Command) Close() error {
 	)
 }
 
-func (c Command) Handler() func(*discordgo.Session, *discordgo.InteractionCreate) {
+func (c Command) Handler() (func(*discordgo.Session, *discordgo.InteractionCreate), error) {
+	CHANNEL_ID, err := env.Get("CHANNEL_ID")
+	if err != nil {
+		return nil, err
+	}
 	return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		options := i.ApplicationCommandData().Options
 		switch options[0].Name {
@@ -35,8 +39,28 @@ func (c Command) Handler() func(*discordgo.Session, *discordgo.InteractionCreate
 		case "today":
 			TodayHandler(s, i)
 			return
+		case "retrigger":
+			if i.Interaction.Member.User.ID != "255102189616365568" {
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Only <@255102189616365568> is able to use this command",
+						Flags:   discordgo.MessageFlagsEphemeral,
+					},
+				})
+				return
+			}
+			TodayCron(s, CHANNEL_ID)
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Command sent my lord",
+					Flags:   discordgo.MessageFlagsEphemeral,
+				},
+			})
+			return
 		}
-	}
+	}, nil
 }
 
 func CreateCommand(session *discordgo.Session) (*Command, error) {
@@ -68,12 +92,17 @@ func CreateCommand(session *discordgo.Session) (*Command, error) {
 			},
 			{
 				Name:        "today",
-				Description: "Displays todays' birthdays",
+				Description: "Displays today's birthdays",
 				Type:        discordgo.ApplicationCommandOptionSubCommand,
 			},
 			{
 				Name:        "all",
-				Description: "Displays everyones' birthday",
+				Description: "Displays everyone's birthday",
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+			},
+			{
+				Name:        "retrigger",
+				Description: "Admin command to today's birthdays announcement",
 				Type:        discordgo.ApplicationCommandOptionSubCommand,
 			},
 		},

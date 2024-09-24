@@ -3,6 +3,7 @@ package birthday
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/guergeiro/discord-bots/pkg/application/usecase"
 )
@@ -25,6 +26,7 @@ func (c BirthdayRemoveController) Handle(
 ) []string {
 	_, err := c.usecase.Execute(ctx, id)
 	if err != nil {
+		log.Println(err.Error())
 		return []string{err.Error()}
 	}
 	return []string{fmt.Sprintf("Birthday removed")}

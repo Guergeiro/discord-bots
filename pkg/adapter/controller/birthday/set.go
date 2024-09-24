@@ -3,6 +3,7 @@ package birthday
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/guergeiro/discord-bots/pkg/application/usecase"
@@ -30,14 +31,17 @@ func (c BirthdaySetController) Handle(
 ) []string {
 	dateStr, ok := dateValue.(string)
 	if !ok {
+		log.Println("There was an error parsing the date")
 		return []string{"There was an error parsing the date"}
 	}
 	date, err := time.Parse(timelayout, dateStr)
 	if err != nil {
+		log.Println(err.Error())
 		return []string{err.Error()}
 	}
 	birthday, err := c.usecase.Execute(ctx, id, date)
 	if err != nil {
+		log.Println(err.Error())
 		return []string{err.Error()}
 	}
 	return []string{fmt.Sprintf("<@%s> - %s", birthday.Id, birthday.Date)}

@@ -23,7 +23,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add package.json .changeset
+          git add package.json .changeset CHANGELOG.md
           git config user.email "git@brenosalles.com"
           git config user.name "Breno Salles"
           git commit -m "ci: release"

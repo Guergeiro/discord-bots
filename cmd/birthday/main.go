@@ -55,11 +55,13 @@ func main() {
 		return
 	}
 	defer cmd.Close()
-	session.AddHandler(cmd.Handler())
+	handler, err := cmd.Handler()
+	if err != nil {
+		log.Println("Error creating handler", err)
+		return
+	}
+	session.AddHandler(handler)
 
-	// Wait here until CTRL-C or other term signal is received.
-	// m := birthday.Birthday{}.Handle()
-	// session.ChannelMessageSend("978655173402578974", m)
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")

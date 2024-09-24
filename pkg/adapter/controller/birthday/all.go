@@ -3,6 +3,7 @@ package birthday
 import (
 	"context"
 	"fmt"
+	"log"
 	"slices"
 
 	"deedles.dev/xiter"
@@ -25,6 +26,7 @@ func NewBirthdayAllController(
 func (c BirthdayAllController) Handle(ctx context.Context) []string {
 	birthdays, err := c.usecase.Execute(ctx)
 	if err != nil {
+		log.Println(err.Error())
 		return []string{err.Error()}
 	}
 	if len(birthdays) == 0 {
