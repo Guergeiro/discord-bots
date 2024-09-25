@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Birthday struct {
 	Id   string
@@ -15,4 +18,11 @@ func NewBirthday(
 		Id:   id,
 		Date: date,
 	}
+}
+
+func (b Birthday) PrettyBirthday() string {
+	d := b.Date.Day()
+	m := b.Date.Month().String()
+	y := b.Date.Year()
+	return fmt.Sprintf("%d %s %d", d, m, y)
 }

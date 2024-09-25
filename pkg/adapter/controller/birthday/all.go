@@ -36,7 +36,9 @@ func (c BirthdayAllController) Handle(ctx context.Context) []string {
 		xiter.Map(
 			slices.Values(birthdays),
 			func(birthday entity.Birthday) string {
-				return fmt.Sprintf("<@%s> - %s", birthday.Id, birthday.Date)
+				return fmt.Sprintf(
+					"<@%s> - %s", birthday.Id, birthday.PrettyBirthday(),
+				)
 			},
 		),
 	)

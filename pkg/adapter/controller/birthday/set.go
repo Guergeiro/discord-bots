@@ -44,5 +44,7 @@ func (c BirthdaySetController) Handle(
 		log.Println(err.Error())
 		return []string{err.Error()}
 	}
-	return []string{fmt.Sprintf("<@%s> - %s", birthday.Id, birthday.Date)}
+	return []string{fmt.Sprintf(
+		"<@%s> - %s", birthday.Id, birthday.PrettyBirthday(),
+	)}
 }
