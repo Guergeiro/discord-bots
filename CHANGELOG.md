@@ -1,5 +1,11 @@
 # discord-bots
 
+## 0.3.0
+
+### Minor Changes
+
+- 7ac6796: feat: Make birthdays pretty
+
 ## 0.2.0
 
 ### Minor Changes
