@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,41 +13,37 @@ import (
 	"github.com/guergeiro/discord-bots/pkg/domain/entity"
 )
 
-type BirthdaySetController struct {
+type BirthdayAdminOthersBirthdayController struct {
 	base    *controller.BaseController[[]string]
 	usecase usecase.UseCase[entity.Birthday]
 }
 
-func NewBirthdaySetController(
+func NewBirthdayAdminOthersBirthdayController(
 	usecase usecase.UseCase[entity.Birthday],
-) *BirthdaySetController {
-	return &BirthdaySetController{
+) *BirthdayAdminOthersBirthdayController {
+	return &BirthdayAdminOthersBirthdayController{
 		base:    controller.NewBaseController[[]string](),
 		usecase: usecase,
 	}
 }
 
-const timelayout = "2006-01-02"
+var idExtractor = regexp.MustCompile(`\d+`)
 
-func (c *BirthdaySetController) Handle(
+func (c *BirthdayAdminOthersBirthdayController) Handle(
 	ctx context.Context,
 	args ...any,
 ) []string {
-	log.Println("set")
+	log.Println("others-birthday")
 	if len(args) == 0 {
 		return c.base.Handle(ctx, args...)
 	}
 
-	i, ok := args[0].(*discordgo.InteractionCreate)
+	i, ok := args[0].([]*discordgo.ApplicationCommandInteractionDataOption)
 	if !ok {
 		return c.base.Handle(ctx, args...)
 	}
-	name := parseName(i.ApplicationCommandData().Options)
-	if name != "set" {
-		return c.base.Handle(ctx, args...)
-	}
 
-	dateValue := i.ApplicationCommandData().Options[0].Options[0].Value
+	dateValue := i[0].Options[0].Value
 
 	dateStr, ok := dateValue.(string)
 	if !ok {
@@ -58,7 +55,15 @@ func (c *BirthdaySetController) Handle(
 		log.Println(err.Error())
 		return []string{err.Error()}
 	}
-	id := i.Member.User.ID
+
+	idValue := i[0].Options[1].Value
+
+	idStr, ok := idValue.(string)
+	if !ok {
+		log.Println("There was an error parsing the user id")
+		return []string{"There was an error parsing the user id"}
+	}
+	id := idExtractor.FindString(idStr)
 
 	birthday, err := c.usecase.Execute(ctx, id, date)
 	if err != nil {
@@ -70,6 +75,8 @@ func (c *BirthdaySetController) Handle(
 	)}
 }
 
-func (c *BirthdaySetController) SetNext(next controller.Controller[[]string]) {
+func (c *BirthdayAdminOthersBirthdayController) SetNext(
+	next controller.Controller[[]string],
+) {
 	c.base.SetNext(next)
 }
