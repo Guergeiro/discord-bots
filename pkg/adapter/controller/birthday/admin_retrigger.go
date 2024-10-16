@@ -13,36 +13,36 @@ import (
 	"github.com/guergeiro/discord-bots/pkg/domain/entity"
 )
 
-type BirthdayAllController struct {
+type BirthdayAdminRetriggerController struct {
 	base    *controller.BaseController[[]string]
 	usecase usecase.UseCase[[]entity.Birthday]
 }
 
-func NewBirthdayAllController(
+func NewBirthdayAdminRetriggerController(
 	usecase usecase.UseCase[[]entity.Birthday],
-) *BirthdayAllController {
-	return &BirthdayAllController{
+) *BirthdayAdminRetriggerController {
+	return &BirthdayAdminRetriggerController{
 		base:    controller.NewBaseController[[]string](),
 		usecase: usecase,
 	}
 }
 
-func (c *BirthdayAllController) Handle(
+func (c *BirthdayAdminRetriggerController) Handle(
 	ctx context.Context,
 	args ...any,
 ) []string {
-	log.Println("all")
+	log.Println("retrigger")
 	if len(args) == 0 {
 		return c.base.Handle(ctx, args...)
 	}
 
-	i, ok := args[0].(*discordgo.InteractionCreate)
+	i, ok := args[0].([]*discordgo.ApplicationCommandInteractionDataOption)
 	if !ok {
 		return c.base.Handle(ctx, args...)
 	}
 
-	name := parseName(i.ApplicationCommandData().Options)
-	if name != "all" {
+	name := parseName(i)
+	if name != "retrigger" {
 		return c.base.Handle(ctx, args...)
 	}
 
@@ -69,6 +69,8 @@ func (c *BirthdayAllController) Handle(
 	return slices.Insert(output, 0, "These are all the birthdays:")
 }
 
-func (c *BirthdayAllController) SetNext(next controller.Controller[[]string]) {
+func (c *BirthdayAdminRetriggerController) SetNext(
+	next controller.Controller[[]string],
+) {
 	c.base.SetNext(next)
 }

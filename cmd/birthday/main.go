@@ -55,11 +55,7 @@ func main() {
 		return
 	}
 	defer cmd.Close()
-	handler, err := cmd.Handler()
-	if err != nil {
-		log.Println("Error creating handler", err)
-		return
-	}
+	handler := cmd.Handler()
 	session.AddHandler(handler)
 
 	sc := make(chan os.Signal, 1)
