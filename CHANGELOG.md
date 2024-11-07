@@ -1,5 +1,12 @@
 # discord-bots
 
+## 0.4.0
+
+### Minor Changes
+
+- a3fd550: Reestructure presenters
+- 8a27286: Admin command to setup birthdays of other users
+
 ## 0.3.0
 
 ### Minor Changes
