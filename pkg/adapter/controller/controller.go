@@ -2,34 +2,32 @@ package controller
 
 import (
 	"context"
-	"log"
+	"errors"
 )
 
-type Controller[O any] interface {
-	Handle(ctx context.Context, args ...any) O
-	SetNext(next Controller[O])
+type Controller interface {
+	Handle(ctx context.Context, args ...any) error
+	SetNext(next Controller)
 }
 
-type BaseController[O any] struct {
-	next Controller[O]
+type BaseController struct {
+	next Controller
 }
 
-func NewBaseController[O any]() *BaseController[O] {
-	return &BaseController[O]{}
+func NewBaseController() *BaseController {
+	return &BaseController{}
 }
 
-func (c *BaseController[O]) Handle(
+func (c *BaseController) Handle(
 	ctx context.Context,
 	args ...any,
-) O {
+) error {
 	if c.next != nil {
 		return c.next.Handle(ctx, args...)
 	}
-	log.Println("No handlers available")
-	var result O
-	return result
+	return errors.New("No handlers available")
 }
 
-func (c *BaseController[O]) SetNext(next Controller[O]) {
+func (c *BaseController) SetNext(next Controller) {
 	c.next = next
 }

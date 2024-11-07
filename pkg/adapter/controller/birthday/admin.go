@@ -3,7 +3,6 @@ package birthday
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/guergeiro/discord-bots/internal/env"
@@ -11,15 +10,15 @@ import (
 )
 
 type BirthdayAdminController struct {
-	base     *controller.BaseController[[]string]
-	original controller.Controller[[]string]
+	base     *controller.BaseController
+	original controller.Controller
 }
 
 func NewBirthdayAdminController(
-	original controller.Controller[[]string],
+	original controller.Controller,
 ) *BirthdayAdminController {
 	return &BirthdayAdminController{
-		base:     controller.NewBaseController[[]string](),
+		base:     controller.NewBaseController(),
 		original: original,
 	}
 }
@@ -27,13 +26,17 @@ func NewBirthdayAdminController(
 func (c *BirthdayAdminController) Handle(
 	ctx context.Context,
 	args ...any,
-) []string {
-	log.Println("admin")
-	if len(args) == 0 {
+) error {
+	if len(args) != 2 {
 		return c.base.Handle(ctx, args...)
 	}
 
-	i, ok := args[0].(*discordgo.InteractionCreate)
+	s, ok := args[0].(*discordgo.Session)
+	if !ok {
+		return c.base.Handle(ctx, args...)
+	}
+
+	i, ok := args[1].(*discordgo.InteractionCreate)
 	if !ok {
 		return c.base.Handle(ctx, args...)
 	}
@@ -45,25 +48,21 @@ func (c *BirthdayAdminController) Handle(
 
 	ADMIN_ID, err := env.Get("ADMIN_ID")
 	if err != nil {
-		log.Println(err.Error())
-		return []string{
-			err.Error(),
-		}
+		return err
 	}
 
 	caller := i.Interaction.Member.User.ID
 	if caller != ADMIN_ID {
-		return []string{
-			fmt.Sprintf("Only <@%s> is able to use this command", ADMIN_ID),
-		}
+		return fmt.Errorf("Only <@%s> is able to use this command", ADMIN_ID)
 	}
 
 	return c.original.Handle(
 		ctx,
-		i.ApplicationCommandData().Options[0].Options,
+		s,
+		i,
 	)
 }
 
-func (c *BirthdayAdminController) SetNext(next controller.Controller[[]string]) {
+func (c *BirthdayAdminController) SetNext(next controller.Controller) {
 	c.base.SetNext(next)
 }

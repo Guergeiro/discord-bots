@@ -1,8 +1,17 @@
 package birthday
 
 import (
+	"context"
+	"log"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/guergeiro/discord-bots/internal/env"
+	repository "github.com/guergeiro/discord-bots/internal/infra/birthday"
+	"github.com/guergeiro/discord-bots/internal/infra/connection"
+	"github.com/guergeiro/discord-bots/pkg/adapter/controller"
+	controller_birthday "github.com/guergeiro/discord-bots/pkg/adapter/controller/birthday"
+	presenter_birthday "github.com/guergeiro/discord-bots/pkg/adapter/presenter/birthday"
+	usecase "github.com/guergeiro/discord-bots/pkg/application/usecase/birthday"
 	"github.com/robfig/cron/v3"
 )
 
@@ -22,9 +31,24 @@ func CreateCron(session *discordgo.Session) (*Cron, error) {
 		return nil, err
 	}
 
+	controller := controller.NewControllerBuilder().
+		Add(
+			controller_birthday.NewBirthdayAnnouncerController(
+				usecase.NewTodayBirthdayUseCase(
+					repository.NewBirthdayPostgresRepository(
+						connection.PostgresConn,
+					),
+				),
+				presenter_birthday.NewBirthdayAnnouncerPresenter(CHANNEL_ID),
+			),
+		).
+		Build()
+
 	c := cron.New()
 	c.AddFunc("0 9 * * *", func() {
-		TodayCron(session, CHANNEL_ID)
+		if err := controller.Handle(context.Background(), session); err != nil {
+			log.Println(err)
+		}
 	})
 	c.Start()
 	return &Cron{
