@@ -1,24 +1,24 @@
 package controller
 
-type ControllerBuilder[O any] struct {
-	controllers []Controller[O]
+type ControllerBuilder struct {
+	controllers []Controller
 }
 
-func NewControllerBuilder[O any]() *ControllerBuilder[O] {
-	return &ControllerBuilder[O]{
-		controllers: []Controller[O]{},
+func NewControllerBuilder() *ControllerBuilder {
+	return &ControllerBuilder{
+		controllers: []Controller{},
 	}
 }
 
-func (b *ControllerBuilder[O]) Add(
-	controller Controller[O],
-) *ControllerBuilder[O] {
+func (b *ControllerBuilder) Add(
+	controller Controller,
+) *ControllerBuilder {
 	b.controllers = append(b.controllers, controller)
 
 	return b
 }
 
-func (b *ControllerBuilder[O]) Build() Controller[O] {
+func (b *ControllerBuilder) Build() Controller {
 	cur := b.controllers[0]
 
 	i := 1

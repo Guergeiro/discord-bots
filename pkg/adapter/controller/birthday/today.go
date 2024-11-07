@@ -2,41 +2,45 @@ package birthday
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"slices"
 
-	"deedles.dev/xiter"
 	"github.com/bwmarrin/discordgo"
 	"github.com/guergeiro/discord-bots/pkg/adapter/controller"
+	"github.com/guergeiro/discord-bots/pkg/adapter/presenter"
 	"github.com/guergeiro/discord-bots/pkg/application/usecase"
 	"github.com/guergeiro/discord-bots/pkg/domain/entity"
 )
 
 type BirthdayTodayController struct {
-	base    *controller.BaseController[[]string]
-	usecase usecase.UseCase[[]entity.Birthday]
+	base      *controller.BaseController
+	usecase   usecase.UseCase[[]entity.Birthday]
+	presenter presenter.Presenter[[]entity.Birthday]
 }
 
 func NewBirthdayTodayController(
 	usecase usecase.UseCase[[]entity.Birthday],
+	presenter presenter.Presenter[[]entity.Birthday],
 ) *BirthdayTodayController {
 	return &BirthdayTodayController{
-		base:    controller.NewBaseController[[]string](),
-		usecase: usecase,
+		base:      controller.NewBaseController(),
+		usecase:   usecase,
+		presenter: presenter,
 	}
 }
 
 func (c *BirthdayTodayController) Handle(
 	ctx context.Context,
 	args ...any,
-) []string {
-	log.Println("today")
-	if len(args) == 0 {
+) error {
+	if len(args) != 2 {
 		return c.base.Handle(ctx, args...)
 	}
 
-	i, ok := args[0].(*discordgo.InteractionCreate)
+	s, ok := args[0].(*discordgo.Session)
+	if !ok {
+		return c.base.Handle(ctx, args...)
+	}
+
+	i, ok := args[1].(*discordgo.InteractionCreate)
 	if !ok {
 		return c.base.Handle(ctx, args...)
 	}
@@ -47,27 +51,13 @@ func (c *BirthdayTodayController) Handle(
 
 	birthdays, err := c.usecase.Execute(ctx)
 	if err != nil {
-		log.Println(err.Error())
-		return []string{err.Error()}
+		return err
 	}
-	if len(birthdays) == 0 {
-		return []string{
-			"No birthdays for today",
-		}
-	}
-	output := slices.Collect(
-		xiter.Map(
-			slices.Values(birthdays),
-			func(birthday entity.Birthday) string {
-				return fmt.Sprintf("<@%s>", birthday.Id)
-			},
-		),
-	)
-	return slices.Insert(output, 0, "Today's birthdays:")
+	return c.presenter.Present(ctx, birthdays, s, i)
 }
 
 func (c *BirthdayTodayController) SetNext(
-	next controller.Controller[[]string],
+	next controller.Controller,
 ) {
 	c.base.SetNext(next)
 }

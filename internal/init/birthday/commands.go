@@ -3,7 +3,6 @@ package birthday
 import (
 	"context"
 	"log"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/guergeiro/discord-bots/internal/env"
@@ -11,6 +10,7 @@ import (
 	"github.com/guergeiro/discord-bots/internal/infra/connection"
 	"github.com/guergeiro/discord-bots/pkg/adapter/controller"
 	controller_birthday "github.com/guergeiro/discord-bots/pkg/adapter/controller/birthday"
+	presenter_birthday "github.com/guergeiro/discord-bots/pkg/adapter/presenter/birthday"
 	usecase "github.com/guergeiro/discord-bots/pkg/application/usecase/birthday"
 )
 
@@ -35,7 +35,7 @@ func (c Command) Handler() func(
 	*discordgo.InteractionCreate,
 ) {
 
-	controller := controller.NewControllerBuilder[[]string]().
+	controller := controller.NewControllerBuilder().
 		Add(
 			controller_birthday.NewBirthdayAllController(
 				usecase.NewAllBirthdayUseCase(
@@ -43,6 +43,7 @@ func (c Command) Handler() func(
 						connection.PostgresConn,
 					),
 				),
+				presenter_birthday.NewBirthdayAllPresenter(),
 			),
 		).
 		Add(
@@ -52,6 +53,7 @@ func (c Command) Handler() func(
 						connection.PostgresConn,
 					),
 				),
+				presenter_birthday.NewBirthdaySetPresenter(),
 			),
 		).
 		Add(
@@ -61,6 +63,7 @@ func (c Command) Handler() func(
 						connection.PostgresConn,
 					),
 				),
+				presenter_birthday.NewBirthdayRemovePresenter(),
 			),
 		).
 		Add(
@@ -70,17 +73,21 @@ func (c Command) Handler() func(
 						connection.PostgresConn,
 					),
 				),
+				presenter_birthday.NewBirthdayTodayPresenter(),
 			),
 		).
 		Add(
 			controller_birthday.NewBirthdayAdminController(
-				controller.NewControllerBuilder[[]string]().
+				controller.NewControllerBuilder().
 					Add(
 						controller_birthday.NewBirthdayAdminRetriggerController(
 							usecase.NewTodayBirthdayUseCase(
 								repository.NewBirthdayPostgresRepository(
 									connection.PostgresConn,
 								),
+							),
+							presenter_birthday.NewAdminRetriggerPresenter(
+								presenter_birthday.NewBirthdayAnnouncerPresenter(c.channelId),
 							),
 						),
 					).
@@ -91,6 +98,7 @@ func (c Command) Handler() func(
 									connection.PostgresConn,
 								),
 							),
+							presenter_birthday.NewBirthdayAdminOthersBirthdayPresenter(),
 						),
 					).
 					Build(),
@@ -99,16 +107,17 @@ func (c Command) Handler() func(
 		Build()
 
 	return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		response := controller.Handle(context.Background(), i)
-		log.Println(response)
+		if err := controller.Handle(context.Background(), s, i); err != nil {
+			log.Println(err)
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "An error occurred. Please check logs.\n",
+					Flags:   discordgo.MessageFlagsEphemeral,
+				},
+			})
+		}
 
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: strings.Join(response, "\n"),
-				Flags:   discordgo.MessageFlagsEphemeral,
-			},
-		})
 	}
 }
 
