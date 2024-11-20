@@ -28,7 +28,7 @@ jobs:
           go mod tidy
       - name: Create empty changeset
         run: |
-          make change-chore
+          echo -e "---\n\"discord-bots\": patch\n---\n\nBump dependencies" > .changeset/bump-dependencies.md
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
