@@ -21,15 +21,15 @@ jobs:
       - name: Check fmt
         run: files=$(gofmt -l .) && [ -z "$files" ]
 
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
             go-version: '1.23'
-      - name: Build Go
-        run: make
+      - name: Check test
+        run: make test
 
   changesets:
     runs-on: ubuntu-latest

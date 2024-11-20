@@ -17,7 +17,12 @@ run:
 # Test the application
 test:
 	@echo "Testing..."
-	@go test ./test/... -v
+	@go test ./...
+
+coverage:
+	@echo "Testing..."
+	@go test ./... -coverprofile="c.out"
+	@go tool cover -html="c.out"
 
 # Clean the binary
 clean:
