@@ -1,5 +1,11 @@
 # discord-bots
 
+## 0.4.3
+
+### Patch Changes
+
+- 6f7346a: Bump dependencies
+
 ## 0.4.2
 
 ### Patch Changes
