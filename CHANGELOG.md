@@ -1,5 +1,11 @@
 # discord-bots
 
+## 0.4.7
+
+### Patch Changes
+
+- db10470: Bump dependencies
+
 ## 0.4.6
 
 ### Patch Changes
