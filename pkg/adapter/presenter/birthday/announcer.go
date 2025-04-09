@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"deedles.dev/xiter"
 	"github.com/bwmarrin/discordgo"
+	"github.com/guergeiro/discord-bots/internal/iter"
 	"github.com/guergeiro/discord-bots/pkg/domain/entity"
 )
 
@@ -45,7 +45,7 @@ func (p *BirthdayAnnouncerPresenter) Present(
 		"These are today's birthday mabecos",
 	}
 	output := slices.Collect(
-		xiter.Map(
+		iter.Map(
 			slices.Values(input),
 			func(birthday entity.Birthday) string {
 				return fmt.Sprintf("<@%s>", birthday.Id)
