@@ -1,5 +1,11 @@
 # discord-bots
 
+## 0.5.0
+
+### Minor Changes
+
+- 50fc677: Remove xiter dependency
+
 ## 0.4.9
 
 ### Patch Changes
