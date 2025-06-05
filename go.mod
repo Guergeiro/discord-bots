@@ -3,7 +3,7 @@ module github.com/guergeiro/discord-bots
 go 1.23.0
 
 require (
-	github.com/bwmarrin/discordgo v0.28.1
+	github.com/bwmarrin/discordgo v0.29.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.9.0
